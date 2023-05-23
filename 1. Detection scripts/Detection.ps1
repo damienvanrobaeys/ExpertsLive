@@ -1,8 +1,8 @@
 #***************************************** Part to fill ***************************************************
 # Log analytics part
 $LogType = "MissingInfos"
-$CustomerId = "57dccf54-f9ee-4dae-bb35-e9413d90e7b1" # Log Analytics Workspace ID
-$SharedKey = 'qA4hQu8vnRyiB92oNANwXIjLeIrBfVj06dlWqP1rbmxyiG8vW/H4vmBmtB0sVm3Whbm3P/8Dgd0Rp9/fbJVqvw==' # Log Analytics Workspace Primary Key
+$CustomerId = "" # Log Analytics Workspace ID
+$SharedKey = '' # Log Analytics Workspace Primary Key
 $TimeStampField = ""
 
 # Log analytics functions
