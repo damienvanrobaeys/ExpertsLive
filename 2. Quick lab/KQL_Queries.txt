@@ -1,0 +1,80 @@
+Comment with //
+
+GRT_BSOD_CL 
+
+// Project
+GRT_BSOD_CL 
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+
+project rename
+
+// Where
+GRT_BSOD_CL 
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+| where Device_s contains "P60007360" 
+
+
+contains, !contains, ==, startswith
+Equals and casesensitive ==
+Equals and case insensitive =~
+Not equals and case insensitive !~
+
+
+// summarize on last result
+GRT_BSOD_CL 
+| where Device_s contains "P60007360" 
+| summarize arg_max(TimeGenerated,*) by Device_s
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+
+
+
+// top result
+GRT_BSOD_CL 
+| summarize arg_max(TimeGenerated,*) by Device_s
+| top 10 by BSODCount_d desc nulls last
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+
+
+
+// order
+GRT_BSOD_CL 
+| summarize arg_max(TimeGenerated,*) by Device_s
+| top 10 by BSODCount_d desc nulls last
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+| order by LastBSOD_t desc 
+
+
+
+
+// ago
+GRT_BSOD_CL 
+| summarize arg_max(TimeGenerated,*) by Device_s
+| where LastBSOD_t> ago(7d)
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+| order by LastBSOD_t desc
+
+
+
+// between 
+GRT_BSOD_CL 
+| summarize arg_max(TimeGenerated,*) by Device_s
+| where LastBSOD_t between (datetime(2023-04-01) .. datetime(2023-04-04))
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+| order by LastBSOD_t desc
+
+
+
+
+// Count
+GRT_BSOD_CL 
+| summarize arg_max(TimeGenerated,*) by Device_s
+| where LastBSOD_t> ago(7d)
+| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
+| order by LastBSOD_t desc
+| count
+
+
+
+
+| join IntuneDevices on DeviceId
+

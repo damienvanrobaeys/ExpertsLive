@@ -1,0 +1,66 @@
+//		 GRID 
+BIOS update details (uptodate and not uptodate)
+ExpertsLive8_CL
+| where ScriptStatus_s == "Success"
+| summarize arg_max(TimeGenerated,*) by ComputerName_s
+| project ['BIOS state ?']=BIOSStatus_s, Computer=ComputerName_s, User=UserName_s, Model=DeviceModel_s, ['Not updated since (in days']=NotUpdatedSince_s,['Current BIOS version']=CurrentVersionBIOS_s,['New BIOS version']=NewVersionBIOS_s
+
+
+
+Top 10 devices with old BIOS
+ExpertsLive8_CL | top 10 by NotUpdatedSince_s desc nulls last
+| summarize arg_max(TimeGenerated,*) by ComputerName_s
+| where ScriptStatus_s == "Success"
+| where BIOSStatus_s == "notuptodate"
+| summarize arg_max(TimeGenerated,*) by ComputerName_s
+| project ['Last contact']=TimeGenerated, ['Not updated since (in days']=NotUpdatedSince_s, Computer=ComputerName_s,User=UserName_s, Model=DeviceModel_s,
+['Current BIOS version']=CurrentVersionBIOS_s,['New BIOS version']=NewVersionBIOS_s
+
+
+
+Devices with BIOS > 2 years
+ExpertsLive8_CL
+| where ScriptStatus_s == "Success"
+| where BIOSStatus_s == "notuptodate"
+| where DateDiffDelay_s == "730_More"
+| summarize arg_max(TimeGenerated,*) by ComputerName_s
+| project ['BIOS uptodate ?']=BIOSStatus_s, Computer=ComputerName_s,User=UserName_s, Model=DeviceModel_s, ['Not updated since (in days']=NotUpdatedSince_s,['Current BIOS version']=CurrentVersionBIOS_s,['New BIOS version']=NewVersionBIOS_s
+
+
+
+//		 CHART
+BIOS update status
+ExpertsLive8_CL
+| where ScriptStatus_s == "Success"
+| summarize arg_max(TimeGenerated,*) by ComputerName_s
+| summarize Festive_CL = count() by BIOSStatus_s, DeviceModel_s
+
+
+
+Devices with BIOS not uptodate (per model)
+ExpertsLive8_CL
+| where ScriptStatus_s == "Success"
+| where BIOSStatus_s == "notuptodate"
+| summarize arg_max(TimeGenerated,*) by ComputerName_s
+| summarize Festive_CL = count() by DeviceModel_s
+
+
+
+//		 FILTER
+Filtering on models
+ExpertsLive8_CL
+| where ScriptStatus_s == "Success"
+| where DeviceModel_s <> ""
+| distinct DeviceModel_s
+
+
+
+Part to add to queries
+Parameter name: Models
+| where DeviceModel_s has_any ({Models})
+
+
+
+Filtering on computername
+Parameter name: ComputerName
+| where "{ComputerName:escape}" == "*" or ComputerName_s contains "{ComputerName:escape}" or "{ComputerName:escape}" == "All devices"
