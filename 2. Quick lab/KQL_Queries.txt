@@ -1,23 +1,38 @@
-Comment with //
+// Add comments to your query
+// This is a comment
 
 GRT_BSOD_CL 
 
-// Project
+
+// Project: specify columns to display
 GRT_BSOD_CL 
 | project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
 
-project rename
+// Renaming columns
+GRT_BSOD_CL 
+|project ['BSOD last date']=LastBSOD_t,Device=Device_s,['BSOD count']=BSODCount_d,Model=Model_s
+
+
+
+// Order result on a field
+GRT_BSOD_CL 
+| order by BSODCount_d desc 
+|project ['BSOD last date']=LastBSOD_t,Device=Device_s,['BSOD count']=BSODCount_d,Model=Model_s
+
+
 
 // Where
 GRT_BSOD_CL 
 | project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
 | where Device_s contains "P60007360" 
 
+Logic operators: and, or
+| where BSODCount_d > 5 and Model_s contains "20KE"
+| where Model_s contains "20KE" or Model_s contains "20T1"
 
-contains, !contains, ==, startswith
-Equals and casesensitive ==
-Equals and case insensitive =~
-Not equals and case insensitive !~
+* contains is case insensitive by default
+* To use case sensivite use _cs: contains_cs
+
 
 
 // summarize on last result
@@ -36,26 +51,23 @@ GRT_BSOD_CL
 
 
 
-// order
-GRT_BSOD_CL 
-| summarize arg_max(TimeGenerated,*) by Device_s
-| top 10 by BSODCount_d desc nulls last
-| project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
-| order by LastBSOD_t desc 
+// ago: include evets from the last x hours, days...
+| where LastBSOD_t> ago(7d)
 
-
-
-
-// ago
 GRT_BSOD_CL 
 | summarize arg_max(TimeGenerated,*) by Device_s
 | where LastBSOD_t> ago(7d)
 | project LastBSOD_t,Device_s,BSODCount_d,Model_s,LastCode_s,LastCodeInfo_s,FullBIOSVersion_s
 | order by LastBSOD_t desc
 
+1d: 1 day
+5h: 5 hours
 
 
-// between 
+
+// between: include events between two dates
+| where LastBSOD_t between (datetime(2023-04-01) .. datetime(2023-04-04))
+
 GRT_BSOD_CL 
 | summarize arg_max(TimeGenerated,*) by Device_s
 | where LastBSOD_t between (datetime(2023-04-01) .. datetime(2023-04-04))
@@ -65,7 +77,7 @@ GRT_BSOD_CL
 
 
 
-// Count
+// Count: count number of records
 GRT_BSOD_CL 
 | summarize arg_max(TimeGenerated,*) by Device_s
 | where LastBSOD_t> ago(7d)
@@ -75,6 +87,6 @@ GRT_BSOD_CL
 
 
 
-
+// join another table, logs
 | join IntuneDevices on DeviceId
 
